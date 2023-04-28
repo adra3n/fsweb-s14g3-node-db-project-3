@@ -125,7 +125,7 @@ async function findById(scheme_id) {
   return responseData
 }
 
-function findSteps(scheme_id) {
+async function findSteps(scheme_id) {
   // Egzersiz C
   /*
     1C- Knex'te aşağıdaki verileri döndüren bir sorgu oluşturun.
@@ -147,22 +147,33 @@ function findSteps(scheme_id) {
         }
       ]
   */
+
+  const steps = await db('schemes as sc')
+    .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
+    .select('st.step_id', 'st.step_number', 'st.instructions', 'sc.scheme_name')
+    .where('sc.scheme_id', scheme_id)
+    .orderBy('st.step_number', 'asc')
+  return !steps[0].step_id ? [] : steps
 }
 
-function add(scheme) {
+async function add(scheme) {
   // Egzersiz D
   /*
     1D- Bu işlev yeni bir şema oluşturur ve _yeni oluşturulan şemaya çözümlenir.
   */
+  const insertedScheme = await db('schemes').insert(scheme)
+  return await findById(insertedScheme[0])
 }
 
-function addStep(scheme_id, step) {
+async function addStep(scheme_id, step) {
   // EXERCISE E
   /*
     1E- Bu işlev, verilen 'scheme_id' ile şemaya bir adım ekler.
     ve verilen "scheme_id"ye ait _tüm adımları_ çözer,
     yeni oluşturulan dahil.
   */
+  await db('steps').insert({ ...step, scheme_id: scheme_id })
+  return await findSteps(scheme_id)
 }
 
 module.exports = {
