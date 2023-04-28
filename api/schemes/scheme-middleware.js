@@ -13,7 +13,7 @@ const checkSchemeId = async (req, res, next) => {
     const isExistScheme = await SchemeModel.findById(req.params.scheme_id)
     if (!isExistScheme) {
       res.status(404).json({
-        message: `scheme_id ${res.params.scheme_id} id li şema bulunamadı`,
+        message: `scheme_id ${req.params.scheme_id} id li şema bulunamadı`,
       })
     } else {
       next()
@@ -59,9 +59,8 @@ const validateStep = async (req, res, next) => {
     if (
       !instructions ||
       typeof instructions !== 'string' ||
-      instructions === '' ||
       typeof step_number !== 'number' ||
-      step_number > 1
+      step_number < 1
     ) {
       res.status(400).json({ message: 'Hatalı step' })
     } else {
